@@ -46,9 +46,23 @@ jobs:
         run: nuget restore netframe.sln
         
       - name: Update Assembly Version
-        uses: dannevesdantas/set-version-assemblyinfo@v1.0.0
-        with:
-          version: ${{ steps.version_step.outputs.assemblySemVer }}
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version_step.outputs.assemblySemVer }}"
+          $assemblyFiles = Get-ChildItem -Path . -Filter "AssemblyInfo.cs" -Recurse
+          
+          foreach ($file in $assemblyFiles) {
+            $content = Get-Content -Path $file.FullName
+            
+            # 更新版本号相关属性
+            $content = $content -replace 'AssemblyVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyVersion(""$version"")"
+            $content = $content -replace 'AssemblyFileVersion\("[0-9]+(\.([0-9]+|\*)){1,3}"\)', "AssemblyFileVersion(""$version"")"
+            
+            # 写回文件
+            Set-Content -Path $file.FullName -Value $content
+            
+            Write-Output "已更新 $($file.FullName) 的版本号为 $version"
+          }
           
       - name: Build Solution (Debug)
         run: msbuild netframe.sln /p:Configuration=Debug /p:Platform="Any CPU"
