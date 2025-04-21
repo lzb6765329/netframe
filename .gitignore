@@ -1,0 +1,43 @@
+# 忽略编译生成的二进制文件和中间文件
+bin/
+obj/
+
+# 忽略 NuGet 包文件夹（使用包引用时建议保留，但旧项目可能需要忽略）
+packages/
+
+# 忽略 Visual Studio 用户特定配置
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# 忽略 ReSharper 相关文件
+_ReSharper.*
+*.DotSettings
+*.DotSettings.user
+
+# 忽略日志和临时文件
+*.log
+*.tmp
+*.vspscc
+*.vssscc
+.builds/
+
+# 忽略发布输出（如果有）
+publish/
+dist/
+
+# 忽略本地环境配置（如 app.config 转换文件）
+*.config.user
+*.xml.user
+
+# 忽略 Docker 相关文件（如果使用）
+Dockerfile
+.dockerignore
+
+# 忽略第三方工具生成的文件
+_Generated/
+*.cache
+
+# 忽略本地 git 配置（如果有）
+*.local
