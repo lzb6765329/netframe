@@ -1,0 +1,10 @@
+C:\Users\liuzhongbo\source\repos\netframe\obj\Debug\netframe.csproj.AssemblyReference.cache
+C:\Users\liuzhongbo\source\repos\netframe\obj\Debug\netframe.csproj.SuggestedBindingRedirects.cache
+C:\Users\liuzhongbo\source\repos\netframe\obj\Debug\netframe.csproj.CoreCompileInputs.cache
+C:\Users\liuzhongbo\source\repos\netframe\bin\Debug\netframe.exe.config
+C:\Users\liuzhongbo\source\repos\netframe\bin\Debug\netframe.exe
+C:\Users\liuzhongbo\source\repos\netframe\bin\Debug\netframe.pdb
+C:\Users\liuzhongbo\source\repos\netframe\bin\Debug\Newtonsoft.Json.dll
+C:\Users\liuzhongbo\source\repos\netframe\obj\Debug\netframe.csproj.CopyComplete
+C:\Users\liuzhongbo\source\repos\netframe\obj\Debug\netframe.exe
+C:\Users\liuzhongbo\source\repos\netframe\obj\Debug\netframe.pdb
