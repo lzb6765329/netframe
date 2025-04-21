@@ -1,30 +1,86 @@
-name: Git Version gitflow
+name: Build and Release
 
 on:
-  # 触发工作流程的事件
-  # push:
-  #   branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+  push:
+    branches: [ main, develop, 'releases/**' ]
+  pull_request:
+    branches: [ main, develop ]
   # 允许手动触发工作流程
   workflow_dispatch:
 
 jobs:
-  look-version:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.2.0
+        uses: gittools/actions/gitversion/setup@v0.9.15
         with:
-          versionSpec: '6.2.x'
+          versionSpec: '5.x'
+          
       - name: Determine Version
         id: version_step # step id used as reference for output values
-        uses: gittools/actions/gitversion/execute@v3.2.0
+        uses: gittools/actions/gitversion/execute@v0.9.15
         with:
           useConfigFile: true
           configFilePath: VersionConfig.yml
+      
+      - name: Display GitVersion outputs
+        run: |
+          echo "SemVer: ${{ steps.version_step.outputs.semVer }}"
+          echo "FullSemVer: ${{ steps.version_step.outputs.fullSemVer }}"
+          echo "AssemblySemVer: ${{ steps.version_step.outputs.assemblySemVer }}"
+          
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+        
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.1.1
+        
+      - name: Restore NuGet packages
+        run: nuget restore netframe.sln
+        
+      - name: Update Assembly Version
+        uses: dannevesdantas/set-version-assemblyinfo@v1.0.0
+        with:
+          version: ${{ steps.version_step.outputs.assemblySemVer }}
+          
+      - name: Build Solution (Debug)
+        run: msbuild netframe.sln /p:Configuration=Debug /p:Platform="Any CPU"
+      
+      - name: Build Solution (Release)
+        run: msbuild netframe.sln /p:Configuration=Release /p:Platform="Any CPU" 
+        
+      # 可选：添加测试步骤，如果有单元测试的话
+      # - name: Run Tests
+      #   run: |
+      #     dotnet test --no-build --verbosity normal
+      
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: netframe-${{ steps.version_step.outputs.fullSemVer }}
+          path: bin/Release/
+          
+      # 如果是main分支或release分支，则创建GitHub Release
+      # - name: Create GitHub Release
+      #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/releases/'))
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: v${{ steps.version_step.outputs.fullSemVer }}
+      #     release_name: Release v${{ steps.version_step.outputs.fullSemVer }}
+      #     draft: false
+      #     prerelease: ${{ github.ref != 'refs/heads/main' }}
+          
+      # 可选：如果需要将构建结果发布到特定位置
+      # - name: Deploy
+      #   if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      #   run: |
+      #     # 部署命令
